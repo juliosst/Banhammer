@@ -1,0 +1,29 @@
+{
+	"format_version": 2,
+	"header": {
+		"name": "Banhammer",
+		"description": "Commands: /ban, /ban-control, /c-kick, /pardon, /id\nupdates: §bhttps://mcpedl.com/banhammer",
+		"min_engine_version": [
+			1,
+			21,
+			0
+		],
+		"uuid": "d591f4a3-df27-448a-ae04-3141da8c83bf",
+		"version": [
+			3,
+			0,
+			0
+		]
+	},
+	"modules": [
+		{
+			"type": "resources",
+			"uuid": "4a7e75a8-4916-425c-ab2b-8b7944c2821a",
+			"version": [
+				3,
+				0,
+				0
+			]
+		}
+	]
+}

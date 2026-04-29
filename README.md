@@ -1,4 +1,4 @@
-<h1><strong><a href="https://discord.gg/vSf4WSQRfm" target="_blank" rel="nofollow"><img src="https://media.forgecdn.net/attachments/description/1268676/description_86653b82-f42a-4f7b-8560-7fabeed44499.png" width="111" height="44"></a></strong></h1>
+<h1><strong><a href="https://discord.gg/vSf4WSQRfm" target="_blank" rel="nofollow"><img src="https://media.forgecdn.net/attachments/description/1268676/description_86653b82-f42a-4f7b-8560-7fabeed44499.png" width="111" height="44"></a> </strong><a href="https://github.com/juliosst/Banhammer" target="_blank" rel="nofollow"><img src="https://media.forgecdn.net/attachments/description/1427510/description_7706e5a2-94e1-4dec-a037-d3c8f26d6955.png" width="90" height="45"></a></h1>
 <h1><strong>Activation</strong></h1>
 <p>1. activate <span style="color:#f1c40f">cheats</span> in the world</p>
 <p><img src="https://r2.mcpedl.com/submissions/231571/images/banhammer_3.png" width="713" height="53"></p>
