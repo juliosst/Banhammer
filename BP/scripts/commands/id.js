@@ -1,19 +1,25 @@
 import { world, system } from '@minecraft/server';
-import { success, error, isOP } from '../run';
+
+import { success, error } from '../runs/install';
+import { hasRights } from '../runs/run';
 
 export function id(senders, select) {
+
     system.run(() => {
-        const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
+
         const sender = senders.sourceEntity;
 
-        if (sender && !isOP(sender.name) && !banhammer.permissions[sender.name]?.cid) {
+        if (sender && !hasRights(sender.name).cid) {
+
             sender.sendMessage('§cYou do not have permission to use the command');
             sender.runCommand(error);
             return;
         }
 
         for (const player of world.getPlayers()) {
+
             if (select === player.name) {
+
                 if (sender) {
                     sender.sendMessage(`§aName: ${player.name}, §eId: ${player.id}`);
                     sender.runCommand(success);
@@ -28,9 +34,7 @@ export function id(senders, select) {
             if (sender) {
                 sender.sendMessage(`§cYou can't check §e${select}§c ID because he's offline`);
                 sender.runCommand(error);
-            }
-
-            if (!sender) {
+            } else {
                 console.info(`§cYou can't check §e${select}§c ID because he's offline`);
             }
         }

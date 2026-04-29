@@ -1,9 +1,12 @@
 import { system, world } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
-import { error, openMenu, isOP } from '../run';
+import { hasRights, getBanTime } from '../runs/run';
+import { error, openMenu } from '../runs/install';
 
 export function banlist(sender, banhammer) {
+
     system.run(() => {
+
         const banlist = new ActionFormData();
 
         banlist.title('§l§6banlist');
@@ -11,23 +14,28 @@ export function banlist(sender, banhammer) {
         banlist.button('§l§2search', 'textures/ui/search');
 
         for (const banName in banhammer.banlist) {
-            const ban = banhammer.banlist[banName]
-            const day = Math.floor(ban.banTime / 86400);
-            ban.banTime %= 86400;
-            const hour = Math.floor(ban.banTime / 3600);
-            ban.banTime %= 3600;
-            const min = Math.floor(ban.banTime / 60);
-            const sec = ban.banTime % 60;
-            const time = ban.banTime >= 0 ? `${day}d, ${hour}h, ${min}m, ${sec}s` : 'Permanent';
 
-            banlist.button(`§6${banName}\n§c${time}`, 'textures/ui/ban_profile');
+            const ban = banhammer.banlist[banName]
+            const time = ban.banTime - Date.now();
+
+            const day = getBanTime(time).d
+            const hour = getBanTime(time).h
+            const min = getBanTime(time).m
+            const sec = getBanTime(time).s
+
+            const banTime = ban.banTime >= 0 ? `${day}d, ${hour}h, ${min}m, ${sec}s` : 'Permanent';
+
+            banlist.button(`§6${banName}\n§c${banTime}`, 'textures/ui/ban_profile');
         }
 
         banlist.show(sender).then((r) => {
+
             banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
             if (r.canceled) return;
-            if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.banlist) {
+
+            if (!hasRights(sender.name).banlist) {
+
                 sender.sendMessage('§cYou do not have permission to view the banlist');
                 sender.runCommand(error);
                 return;
@@ -36,15 +44,19 @@ export function banlist(sender, banhammer) {
             sender.runCommand(openMenu);
 
             if (r.selection === 0) {
+
                 const search = new ModalFormData();
                 search.title('§l§6banlist');
                 search.textField('name:', '');
                 search.submitButton('§l§2search');
                 search.show(sender).then((r) => {
+
                     banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
                     if (r.canceled) return;
-                    if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.banlist) {
+
+                    if (!hasRights(sender.name).banlist) {
+
                         sender.sendMessage('§cYou do not have permission to view the banlist');
                         sender.runCommand(error);
                         return;
@@ -59,6 +71,7 @@ export function banlist(sender, banhammer) {
                     let results = [];
 
                     for (const name in banhammer.banlist) {
+
                         if (String(banhammer.banlist[name].banName).includes(r.formValues[0])) {
                             results.push(name);
                         }
@@ -75,18 +88,27 @@ export function banlist(sender, banhammer) {
             }
 
             if (r.selection >= 1) {
-                showBan(Object.keys(banhammer.banlist)[r.selection - 1]);
+
+                banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
+
+                const name = Object.keys(banhammer.banlist)[r.selection - 1]
+
+                if (banhammer?.banlist[name] === undefined) return;
+
+                showBan(name);
             }
 
             function showBan(banName, search, results, pageNow) {
+
                 const ban = banhammer.banlist[banName]
-                const day = Math.floor(ban.banTime / 86400);
-                ban.banTime %= 86400;
-                const hour = Math.floor(ban.banTime / 3600);
-                ban.banTime %= 3600;
-                const min = Math.floor(ban.banTime / 60);
-                const sec = ban.banTime % 60;
-                const time = ban.banTime >= 0 ? `${day}d, ${hour}h, ${min}m, ${sec}s` : 'Permanent';
+                const time = ban.banTime - Date.now();
+
+                const day = getBanTime(time).d
+                const hour = getBanTime(time).h
+                const min = getBanTime(time).m
+                const sec = getBanTime(time).s
+
+                const banTime = ban.banTime >= 0 ? `${day}d, ${hour}h, ${min}m, ${sec}s` : 'Permanent';
 
                 const names = search ? String(ban.banName).replaceAll(search, `§l§e${search}§r§c`) : ban.banName;
                 const ids = String(ban.banId).replaceAll(',', ', ');
@@ -94,11 +116,12 @@ export function banlist(sender, banhammer) {
                 const banlist = new ActionFormData();
 
                 banlist.title(`§l§6${banName}`);
-                banlist.body(`§6name: §c${banName}, §6by: §c${ban.banFrom}`);
-                banlist.label(`§6time: §c${time}`);
+                banlist.body(`§6name: §c${banName}\n§6by: §c${ban.banFrom}`);
+                banlist.label(`§6time: §c${banTime}`);
                 banlist.label(`§6names: §c${String(names).replaceAll(',', ', ')}`);
                 banlist.label(`§6ids: §c${ids}`);
                 banlist.label(`§6reason: §c${ban.banReason}`);
+
                 if (results && results.length >= 2) {
                     banlist.label(`§6Page: §e${pageNow + 1}/${results.length}`);
                     banlist.button('§l§0next', 'textures/ui/next');
@@ -108,10 +131,13 @@ export function banlist(sender, banhammer) {
                 }
 
                 banlist.show(sender).then((r) => {
+
                     banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
                     if (r.canceled) return;
-                    if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.banlist) {
+
+                    if (!hasRights(sender.name).banlist) {
+
                         sender.sendMessage('§cYou do not have permission to view the banlist');
                         sender.runCommand(error);
                         return;
@@ -130,6 +156,7 @@ export function banlist(sender, banhammer) {
 
                         showBan(results[page], search, results, page);
                     } else {
+
                         if (r.selection === 0) {
                             showBan(banName, search, results, pageNow);
                         }

@@ -1,9 +1,13 @@
 import { system, world } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
-import { success, error, openMenu, isOP } from '../run';
+
+import { success, error, openMenu } from '../runs/install';
+import { hasRights } from '../runs/run';
 
 export function permissions(sender, banhammer) {
+
     system.run(() => {
+
         const selectRights = new ActionFormData();
 
         selectRights.title('§l§6permissions');
@@ -16,13 +20,15 @@ export function permissions(sender, banhammer) {
             banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
             if (r.canceled) return;
-            if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.mrights) {
+
+            if (!hasRights(sender.name).mrights) {
                 sender.sendMessage('§cYou do not have permission to manage permissions');
                 sender.runCommand(error);
                 return;
             }
 
             if (r.selection === 0) {
+
                 sender.runCommand(openMenu);
 
                 const add = new ModalFormData();
@@ -30,10 +36,12 @@ export function permissions(sender, banhammer) {
                 add.textField('name:', '');
                 add.submitButton('§l§2edit permission');
                 add.show(sender).then((r) => {
+
                     banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
                     if (r.canceled) return;
-                    if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.mrights) {
+
+                    if (!hasRights(sender.name).mrights) {
                         sender.sendMessage('§cYou do not have permission to manage permissions');
                         sender.runCommand(error);
                         return;
@@ -54,7 +62,9 @@ export function permissions(sender, banhammer) {
             }
 
             function changeRights(rightName) {
-                if (!isOP(sender.name) && sender.name === rightName) {
+
+                if (!hasRights(sender.name).op && sender.name === rightName) {
+
                     sender.sendMessage('§cOnly operators are allowed to manage their own rights');
                     sender.runCommand(error);
                     return;
@@ -82,13 +92,14 @@ export function permissions(sender, banhammer) {
                     banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
                     if (r.canceled) return;
-                    if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.mrights) {
+
+                    if (!hasRights(sender.name).mrights) {
                         sender.sendMessage('§cYou do not have permission to manage permissions');
                         sender.runCommand(error);
                         return;
                     }
 
-                    if (!isOP(sender.name) && sender.name === rightName) {
+                    if (!hasRights(sender.name).op && sender.name === rightName) {
                         sender.sendMessage('§cOnly operators are allowed to manage their own rights');
                         sender.runCommand(error);
                         return;

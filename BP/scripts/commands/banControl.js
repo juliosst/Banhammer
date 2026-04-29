@@ -1,20 +1,23 @@
 import { system, world } from '@minecraft/server';
 import { ActionFormData } from '@minecraft/server-ui';
-import { error, openMenu, isOP } from '../run';
 
-import { settings } from '../ui/settings';
+import { error, openMenu } from '../runs/install';
 import { permissions } from '../ui/permissions';
+import { settings } from '../ui/settings';
 import { banlist } from '../ui/banlist';
+import { hasRights } from '../runs/run';
 
 export function banControl(senders) {
+
     system.run(() => {
+
         let banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
         const sender = senders.sourceEntity;
         const permission = banhammer.permissions[sender.name]
 
         if (!sender) return;
 
-        if (!isOP(sender.name) && !permission?.settings && !permission?.mrights && !permission?.banlist) {
+        if (!hasRights(sender.name).op && !permission?.settings && !permission?.mrights && !permission?.banlist) {
             sender.sendMessage('§cYou do not have permission to use the command');
             sender.runCommand(error);
             return;
@@ -35,7 +38,7 @@ export function banControl(senders) {
 
             // settings
 
-            if (r.selection === 0 && !isOP(sender.name) && !banhammer.permissions[sender.name]?.settings) {
+            if (r.selection === 0 && !hasRights(sender.name).settings) {
                 sender.sendMessage('§cYou do not have permission to change the settings');
                 sender.runCommand(error);
             } else if (r.selection === 0) {
@@ -44,7 +47,7 @@ export function banControl(senders) {
 
             // permissions
 
-            if (r.selection === 1 && !isOP(sender.name) && !banhammer.permissions[sender.name]?.mrights) {
+            if (r.selection === 1 && !hasRights(sender.name).mrights) {
                 sender.sendMessage('§cYou do not have permission to manage permissions');
                 sender.runCommand(error);
             } else if (r.selection === 1) {
@@ -53,7 +56,7 @@ export function banControl(senders) {
 
             // ban list
 
-            if (r.selection === 2 && !isOP(sender.name) && !banhammer.permissions[sender.name]?.banlist) {
+            if (r.selection === 2 && !hasRights(sender.name).banlist) {
                 sender.sendMessage('§cYou do not have permission to view the banlist');
                 sender.runCommand(error);
             } else if (r.selection === 2) {

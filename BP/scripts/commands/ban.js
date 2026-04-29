@@ -1,38 +1,51 @@
 import { system, world } from '@minecraft/server';
-import { success, error, isOP } from '../run';
 
-export function ban(senders, select, reason = 'no reason', s = 0, m = 0, h = 0, d = 0) {
+import { hasRights, getBanTime, autoPardon, getPlayer } from '../runs/run';
+import { success, error } from '../runs/install';
+import { disconnect } from '../runs/run';
+
+export function ban(senders, select, reason = 'no reason', ss = 0, mm = 0, hh = 0, dd = 0) {
+
     system.run(() => {
+
+        if (!senders) return;
+
+        const s = Math.max(0, Math.min(ss, 59));
+        const m = Math.max(0, Math.min(mm, 59));
+        const h = Math.max(0, Math.min(hh, 23));
+        const d = Math.max(0, dd);
+
         const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
         const sender = senders?.sourceEntity ?? senders;
+        const sett = banhammer.settings
 
-        if (senders.sourceEntity && !isOP(sender.name) && !banhammer.permissions[sender.name]?.cban) {
+        if (sender && !hasRights(sender.name).cban) {
             sender.sendMessage('§cYou do not have permission to use the command');
             sender.runCommand(error);
             return;
         }
 
-        if (isOP(select) || banhammer.permissions[select]?.cban) {
-            if (!senders.sourceEntity) {
+        if (hasRights(select).cban) {
+
+            if (sender) {
+                sender.sendMessage(`§l§cBan: §rYou can't ban §b${select} §rif he has banning rights`);
+                sender.runCommand(error);
+            } else {
                 console.info(`§l§cBan: §rYou can't ban §b${select} §rif he has banning rights`);
             }
 
-            if (senders.sourceEntity) {
-                sender.sendMessage(`§l§cBan: §rYou can't ban §b${select} §rif he has banning rights`);
-                sender.runCommand(error);
-            }
             return;
         }
 
         if (banhammer.banlist[select]) {
-            if (senders.sourceEntity) {
+
+            if (sender) {
                 sender.sendMessage(`§l§cBan: §r§b${select}§r is already banned`);
                 sender.runCommand(error);
-            }
-
-            if (!senders.sourceEntity) {
+            } else {
                 console.info(`§l§cBan: §r§b${select}§r is already banned`);
             }
+
             return;
         }
 
@@ -41,29 +54,33 @@ export function ban(senders, select, reason = 'no reason', s = 0, m = 0, h = 0, 
             banId: [],
             banFrom: sender?.name ?? 'console',
             banReason: reason,
-            banTime: (s + m + h + d === 0) ? 'xxx' : s + m * 60 + h * 3600 + d * 86400
+            banTime: (s + m + h + d === 0) ? 'xxx' : 1000 * (s + m * 60 + h * 3600 + d * 86400) + Date.now()
         }
 
         world.setDynamicProperty('banhammer', JSON.stringify(banhammer));
 
+        disconnect(select, getPlayer(select).id);
+        autoPardon(select);
+
         const ban = banhammer.banlist[select]
-        const day = Math.floor(ban.banTime / 86400);
-        ban.banTime %= 86400;
-        const hour = Math.floor(ban.banTime / 3600);
-        ban.banTime %= 3600;
-        const min = Math.floor(ban.banTime / 60);
-        const sec = ban.banTime % 60;
-        const newTime = ban.banTime >= 0 ? `${day}d, ${hour}h, ${min}m, ${sec}s` : 'Permanent';
+        const time = ban.banTime - Date.now();
 
-        console.info(`§l§cBan: §r§b${select}§r was banned for §c${reason}§r (§a${newTime}§r)`);
+        const day = getBanTime(time).d
+        const hour = getBanTime(time).h
+        const min = getBanTime(time).m
+        const sec = getBanTime(time).s
 
-        if (senders.sourceEntity) {
-            sender.runCommand(success);
-        }
+        const banTime = ban.banTime >= 0 ? `${day}d, ${hour}h, ${min}m, ${sec}s` : 'Permanent';
+
+        console.info(`§l§cBan: §r§b${select}§r was banned for §c${reason}§r (§a${banTime}§r)`);
+
+        sender?.runCommand(success);
 
         for (const admin of world.getPlayers()) {
-            if ((isOP(admin.name) || banhammer.permissions[admin.name].cban) && (banhammer.settings.ban === undefined || banhammer.settings.ban)) {
-                admin.sendMessage(`§l§cBan: §r§b${select}§r was banned for §c${reason}§r (§a${newTime}§r)`);
+
+            if (hasRights(admin.name).cban && (sett.ban === undefined || sett.ban)) {
+
+                admin.sendMessage(`§l§cBan: §r§b${select}§r was banned for §c${reason}§r (§a${banTime}§r)`);
             }
         }
     });

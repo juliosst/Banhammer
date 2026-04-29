@@ -11,8 +11,8 @@
 		"uuid": "5f1f8c82-1465-40e0-a432-1ec3652311ac",
 		"version": [
 			3,
-			0,
-			2
+			1,
+			0
 		]
 	},
 	"modules": [
@@ -21,19 +21,19 @@
 			"uuid": "215fc79c-d7fc-40b3-a96c-412cfdb935c4",
 			"version": [
 				3,
-				0,
-				2
+				1,
+				0
 			]
 		},
 		{
 			"type": "script",
 			"language": "javascript",
 			"uuid": "f9f0cfc0-3be0-4b48-a047-cae6559e4873",
-			"entry": "scripts/run.js",
+			"entry": "scripts/runs/run.js",
 			"version": [
 				3,
-				0,
-				2
+				1,
+				0
 			]
 		}
 	],
@@ -42,8 +42,8 @@
 			"uuid": "d591f4a3-df27-448a-ae04-3141da8c83bf",
 			"version": [
 				3,
-				0,
-				2
+				1,
+				0
 			]
 		},
 		{
@@ -54,5 +54,12 @@
 			"module_name": "@minecraft/server-ui",
 			"version": "2.0.0"
 		}
-	]
+	],
+	"metadata": {
+		"product_type": "addon",
+		"authors": [
+			"JuliosStefen",
+			"https://discord.gg/vSf4WSQRfm"
+		]
+	}
 }

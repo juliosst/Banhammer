@@ -1,8 +1,10 @@
 import { world, ItemStack } from '@minecraft/server';
 import { ModalFormData } from '@minecraft/server-ui';
-import { success, error, openMenu, isOP } from '../run';
+import { success, error, openMenu } from '../runs/install';
+import { hasRights } from '../runs/run';
 
 world.afterEvents.itemUse.subscribe((event) => {
+
     const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
     const player = event.source;
     let slot = player.selectedSlotIndex;
@@ -14,7 +16,8 @@ world.afterEvents.itemUse.subscribe((event) => {
         const item = new ItemStack('ban:hammer', 1);
         const hammerMenu = new ModalFormData();
 
-        if (!isOP(player.name) && !banhammer.permissions[player.name]?.usehammer) {
+        if (!hasRights(player.name).usehammer) {
+
             player.sendMessage(`§cyou are not authorized to use the banhammer`);
             player.runCommand(error);
             return;
@@ -24,7 +27,7 @@ world.afterEvents.itemUse.subscribe((event) => {
 
         if (banhammer.settings.debug) {
             world.sendMessage(`§l§6Debug: §r§a${debug}`);
-            console.log(`§l§6Debug: §r§a${debug}`);
+            console.info(`§l§6Debug: §r§a${debug}`);
         }
 
         player.runCommand(openMenu);
@@ -42,6 +45,7 @@ world.afterEvents.itemUse.subscribe((event) => {
         hammerMenu.slider('§cday(s)', 0, 365, { defaultValue: ban_hammer.time?.d ?? 0 });
         hammerMenu.submitButton('§l§2save');
         hammerMenu.show(player).then((r) => {
+
             const values = r.formValues;
             let dmode, mode, time
 

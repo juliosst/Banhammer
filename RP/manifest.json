@@ -11,8 +11,8 @@
 		"uuid": "d591f4a3-df27-448a-ae04-3141da8c83bf",
 		"version": [
 			3,
-			0,
-			2
+			1,
+			0
 		]
 	},
 	"modules": [
@@ -21,9 +21,16 @@
 			"uuid": "4a7e75a8-4916-425c-ab2b-8b7944c2821a",
 			"version": [
 				3,
-				0,
-				2
+				1,
+				0
 			]
 		}
-	]
+	],
+	"metadata": {
+		"product_type": "addon",
+		"authors": [
+			"JuliosStefen",
+			"https://discord.gg/vSf4WSQRfm"
+		]
+	}
 }

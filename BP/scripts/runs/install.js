@@ -1,16 +1,11 @@
 import { world, system } from '@minecraft/server';
 
-import './ban/ban';
-import './banhammer/banhammer';
-import './commands/registry';
-
 export let success, error, openMenu;
 
-install();
-installSounds();
-
 export function install() {
+
     system.run(() => {
+
         if (!world.getDynamicProperty('banhammer')) {
             world.setDynamicProperty('banhammer', JSON.stringify({}))
         }
@@ -27,13 +22,15 @@ export function install() {
 
         if (banhammer.settings.debug) {
             world.sendMessage(`§l§6Debug: §r§a${world.getDynamicProperty('banhammer')}`);
-            console.log(`§l§6Debug: §r§a${world.getDynamicProperty('banhammer')}`);
+            console.info(`§l§6Debug: §r§a${world.getDynamicProperty('banhammer')}`);
         }
     })
 }
 
 export function installSounds() {
+
     system.run(() => {
+
         const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
         if (banhammer.settings.sounds === undefined || banhammer.settings.sounds) {
@@ -46,13 +43,4 @@ export function installSounds() {
             error = 'playsound mute @s';
         }
     })
-}
-
-export function isOP(name) {
-    for (const admin of world.getPlayers()) {
-        if (admin.name === name && admin.playerPermissionLevel >= 2) {
-            return true;
-        }
-    }
-    return false;
 }

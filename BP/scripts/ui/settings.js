@@ -1,54 +1,66 @@
 import { system, world } from '@minecraft/server';
 import { ModalFormData } from '@minecraft/server-ui';
-import { success, error, isOP, install, installSounds } from '../run';
+
+import { success, error, install, installSounds } from '../runs/install';
+import { hasRights } from '../runs/run';
 
 export function settings(sender, banhammer) {
+
     system.run(() => {
+
+        const sett = banhammer.settings
+
         const settings = new ModalFormData();
 
         settings.title('§l§6settings');
-        settings.toggle('debug', { defaultValue: banhammer.settings?.debug ?? false });
-        settings.toggle('sound effects', { defaultValue: banhammer.settings?.sounds ?? true });
-        settings.label('§6feedback');
-        settings.toggle('ban', { defaultValue: banhammer.settings?.ban ?? true });
-        settings.toggle('pardon', { defaultValue: banhammer.settings?.pardon ?? true });
-        settings.toggle('auto pardon', { defaultValue: banhammer.settings?.autopardon ?? true });
-        settings.toggle('kick', { defaultValue: banhammer.settings?.kick ?? true });
-        settings.label('§creset');
-        settings.toggle('banlist');
-        settings.toggle('settings');
-        settings.toggle('permissions');
-        settings.toggle('§l§4reset all');
+        settings.toggle('debug', { defaultValue: sett?.debug ?? false }); // 0
+        settings.toggle('colored ban/kick screen', { defaultValue: sett?.coBanKick ?? false }); // 1
+        settings.toggle('sound effects', { defaultValue: sett?.sounds ?? true }); // 2
+        settings.label('§6feedback'); // 3
+        settings.toggle('ban', { defaultValue: sett?.ban ?? true }); // 4
+        settings.toggle('pardon', { defaultValue: sett?.pardon ?? true }); // 5
+        settings.toggle('auto pardon', { defaultValue: sett?.autopardon ?? true }); // 6
+        settings.toggle('kick', { defaultValue: sett?.kick ?? true }); // 7
+        settings.label('§creset'); // 8
+        settings.toggle('banlist'); // 9
+        settings.toggle('settings'); // 10
+        settings.toggle('permissions'); // 11
+        settings.toggle('§l§4reset all'); // 12
         settings.submitButton('§l§2save');
         settings.show(sender).then((r) => {
+
             banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
 
             if (r.canceled) return;
-            if (!isOP(sender.name) && !banhammer.permissions[sender.name]?.settings) {
+
+            if (!hasRights(sender.name).settings) {
+
                 sender.sendMessage('§cYou do not have permission to change the settings');
                 sender.runCommand(error);
                 return;
             }
 
-            if (!r.formValues[11]) {
-                if (r.formValues[8]) {
+            if (!r.formValues[12]) {
+
+                if (r.formValues[9]) {
                     banhammer.banlist = {};
                 }
 
-                if (r.formValues[9]) {
+                if (r.formValues[10]) {
                     banhammer.settings = {};
-                } else if (!r.formValues[9]) {
+                } else {
                     banhammer.settings = {
                         debug: r.formValues[0],
-                        sounds: r.formValues[1],
-                        ban: r.formValues[3],
-                        pardon: r.formValues[4],
-                        autopardon: r.formValues[5],
-                        kick: r.formValues[6]
+                        coBanKick: r.formValues[1],
+                        sounds: r.formValues[2],
+                        ban: r.formValues[4],
+                        pardon: r.formValues[5],
+                        autopardon: r.formValues[6],
+                        kick: r.formValues[7]
                     }
                 }
 
-                if (r.formValues[10]) {
+                if (r.formValues[11]) {
                     banhammer.permissions = {};
                 }
 
@@ -58,13 +70,14 @@ export function settings(sender, banhammer) {
                 sender.runCommand(success);
 
                 installSounds();
-            }
 
-            if (r.formValues[11]) {
-                console.log(`§e${sender.name}§c deleted all data from Banhammer`);
+            } else {
+
+                console.info(`§e${sender.name}§c deleted all data from Banhammer`);
 
                 for (const admin of world.getPlayers()) {
-                    if (isOP(admin.name)) {
+
+                    if (hasRights(sender.name).op) {
                         admin.sendMessage(`§e${sender.name}§c deleted all data from Banhammer`);
                     }
                 }
@@ -72,6 +85,7 @@ export function settings(sender, banhammer) {
                 sender.runCommand(success);
 
                 world.setDynamicProperty('banhammer', undefined);
+
                 install();
                 installSounds();
             }
