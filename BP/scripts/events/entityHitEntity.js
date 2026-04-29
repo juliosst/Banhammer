@@ -1,5 +1,4 @@
 import { world } from '@minecraft/server';
-
 import { success, error } from '../runs/install';
 import { hasRights } from '../runs/run';
 import { ban } from '../commands/ban';
@@ -50,6 +49,6 @@ world.afterEvents.entityHitEntity.subscribe((event) => {
 
         const reason = hammerSett?.reason ?? 'The banhammer has spoken'
 
-        ban(hitter, damager.name, reason, s, m, h, d);
+        ban({ sourceEntity: hitter }, damager.name, reason, s, m, h, d);
     }
 });

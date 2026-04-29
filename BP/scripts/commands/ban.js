@@ -8,7 +8,7 @@ export function ban(senders, select, reason = 'no reason', ss = 0, mm = 0, hh = 
 
     system.run(() => {
 
-        if (!senders) return;
+        if (!select) return;
 
         const s = Math.max(0, Math.min(ss, 59));
         const m = Math.max(0, Math.min(mm, 59));
@@ -16,7 +16,7 @@ export function ban(senders, select, reason = 'no reason', ss = 0, mm = 0, hh = 
         const d = Math.max(0, dd);
 
         const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
-        const sender = senders?.sourceEntity ?? senders;
+        const sender = senders?.sourceEntity;
         const sett = banhammer.settings
 
         if (sender && !hasRights(sender.name).cban) {

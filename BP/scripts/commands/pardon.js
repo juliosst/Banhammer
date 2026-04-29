@@ -6,7 +6,7 @@ export function pardon(senders, select) {
 
     system.run(() => {
 
-        if (!senders) return;
+        if (!select) return;
 
         const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
         const sender = senders.sourceEntity;

@@ -7,7 +7,7 @@ export function kick(senders, select, reason = 'no reason') {
 
     system.run(() => {
 
-        if (!senders) return;
+        if (!select) return;
 
         const banhammer = JSON.parse(world.getDynamicProperty('banhammer'));
         const sett = banhammer.settings
